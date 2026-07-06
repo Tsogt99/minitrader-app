@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom smooth scroll and background utilities */
+html, body {
+  background-color: #0b0f19; /* Dark slate background */
+  color: #f3f4f6;
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom smooth scroll and background utilities */
+body.light-theme {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+body.light-theme ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+body.light-theme ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+/* LIGHT THEME OVERRIDES */
+.light-theme {
+  color-scheme: light;
+}
+
+.light-theme .text-white,
+.light-theme .text-slate-100,
+.light-theme .text-slate-200,
+.light-theme h1,
+.light-theme h2,
+.light-theme h3,
+.light-theme h4,
+.light-theme h5,
+.light-theme h6 {
+  color: #0f172a !important;
+}
+
+.light-theme .text-slate-300,
+.light-theme .text-slate-400 {
+  color: #334155 !important;
+}
+
+.light-theme .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Background overrides */
+.light-theme .bg-slate-950 {
+  background-color: #f1f5f9 !important;
+}
+
+.light-theme .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+.light-theme .bg-slate-900\/40 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.light-theme .bg-slate-950\/60 {
+  background-color: rgba(241, 245, 249, 0.6) !important;
+}
+
+.light-theme .bg-emerald-500\/5 {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+.light-theme .bg-emerald-500\/10 {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+}
+
+.light-theme .bg-slate-950\/40 {
+  background-color: rgba(241, 245, 249, 0.4) !important;
+}
+
+.light-theme .bg-slate-900\/60 {
+  background-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Border overrides */
+.light-theme .border-slate-900,
+.light-theme .border-slate-850,
+.light-theme .border-slate-800,
+.light-theme .border-slate-850\/60,
+.light-theme .border-slate-850\/80,
+.light-theme .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme .border-emerald-500\/10,
+.light-theme .border-emerald-500\/20 {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Input/Form overrides */
+.light-theme input,
+.light-theme select,
+.light-theme textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme input::placeholder,
+.light-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Button overrides for non-selected/muted items */
+.light-theme .hover\:bg-slate-850:hover,
+.light-theme .hover\:bg-slate-800:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.light-theme .bg-slate-950 .text-white {
+  color: #0f172a !important;
+}
+
+/* Highlight tags */
+.light-theme .text-emerald-400 {
+  color: #059669 !important; /* Darker emerald for readability on white */
+}
+
+.light-theme .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+.light-theme .text-blue-400 {
+  color: #2563eb !important;
+}
+
+.light-theme .text-rose-400 {
+  color: #dc2626 !important;
+}
+
+.light-theme .text-amber-400 {
+  color: #d97706 !important;
+}
+
+/* Status/Warnings boxes */
+.light-theme .bg-blue-500\/10 {
+  background-color: rgba(37, 99, 235, 0.08) !important;
+}
+.light-theme .bg-rose-500\/10 {
+  background-color: rgba(220, 38, 38, 0.08) !important;
+}
+.light-theme .bg-amber-500\/10 {
+  background-color: rgba(217, 119, 6, 0.08) !important;
+}
+.light-theme .bg-purple-500\/10 {
+  background-color: rgba(124, 58, 237, 0.08) !important;
+}
+
+/* Tables and active lists */
+.light-theme .divide-slate-900 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Trading News and Journal",
+  "description": "Арилжааны мэдээ нэгтгэл болон MT5 арилжааны автомат журнал хөтлөх веб сайт",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
