@@ -27,6 +27,8 @@ import LossDiagnosticsTab from './components/LossDiagnosticsTab.js';
 import MT5Tab from './components/MT5Tab.js';
 import AdminTab from './components/AdminTab.js';
 import AccountsTab from './components/AccountsTab.js';
+// @ts-ignore
+import minitraderLogo from'./assets/images/minitrader_logo_1783322096320.jpg';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -124,12 +126,10 @@ export default function App() {
           <div className="flex items-center gap-3">
             <div className="relative overflow-hidden h-16 w-16 flex items-center justify-center shrink-0">
               <img 
-                src="/src/assets/images/minitrader_logo_1783322096320.jpg" 
-                alt="MINITRADER Logo" 
-                className={`h-full w-full object-contain transition-all duration-300 ${
-                  theme === 'dark' ? 'invert mix-blend-screen' : 'mix-blend-multiply'
-                }`}
-                referrerPolicy="no-referrer"
+                src={minitraderLogo} 
+                 alt="MINITRADER Logo" 
+                  className={theme === 'dark' ? "h-full w-full object-contain transition-all duration-300 invert mix-blend-screen" : "h-full w-full object-contain transition-all duration-300 mix-blend-multiply"}
+                  referrerPolicy="no-referrer"
               />
             </div>
             <div>

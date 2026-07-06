@@ -93,7 +93,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-600 focus:outline-none transition text-sm"
-                placeholder="Minitrader777 эсвэл DemoTrader"
+                placeholder="Хэрэглэгчийн нэр"
               />
             </div>
           </div>
@@ -129,39 +129,6 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
           </button>
         </form>
 
-        {/* Credentials hints for quick review and testing */}
-        <div className="mt-8 pt-6 border-t border-slate-800/60 text-center space-y-3">
-          <p className="text-xs text-slate-500 uppercase tracking-widest font-semibold">
-            Туршилтын нэвтрэх эрхүүд
-          </p>
-          <div className="grid grid-cols-2 gap-3 text-left">
-            <div
-              onClick={() => {
-                setUsername('Minitrader777');
-                setPassword('Tsogt200@');
-              }}
-              className="p-2.5 bg-slate-950/50 border border-slate-800/40 rounded-xl cursor-pointer hover:border-emerald-500/40 transition text-center"
-            >
-              <div className="text-[10px] text-emerald-400 font-bold uppercase">Админ</div>
-              <div className="text-[11px] text-slate-300 font-mono">Minitrader777</div>
-              <div className="text-[10px] text-slate-500 font-mono">Tsogt200@</div>
-            </div>
-            <div
-              onClick={() => {
-                setUsername('DemoTrader');
-                setPassword('Demo123!');
-              }}
-              className="p-2.5 bg-slate-950/50 border border-slate-800/40 rounded-xl cursor-pointer hover:border-emerald-500/40 transition text-center"
-            >
-              <div className="text-[10px] text-blue-400 font-bold uppercase">Хэрэглэгч</div>
-              <div className="text-[11px] text-slate-300 font-mono">DemoTrader</div>
-              <div className="text-[10px] text-slate-500 font-mono">Demo123!</div>
-            </div>
-          </div>
-          <p className="text-[10px] text-slate-600">
-            Дээрх картууд дээр дарж нэвтрэх талбарыг автоматаар бөглөнө үү.
-          </p>
-        </div>
       </motion.div>
     </div>
   );
