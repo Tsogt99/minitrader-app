@@ -10,9 +10,16 @@ import { Trade, User, NewsItem, EmailLog, TradingAccount } from './src/types.js'
 // Load environment variables
 dotenv.config();
 
-// Fix __dirname and __filename for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Fix __dirname and __filename safely for ES Modules and CommonJS
+let _filename = '';
+let _dirname = '';
+try {
+  _filename = fileURLToPath(import.meta.url);
+  _dirname = path.dirname(_filename);
+} catch (e) {
+  _filename = typeof __filename !== 'undefined' ? __filename : '';
+  _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+}
 
 // Initialize DB file
 initDb();
