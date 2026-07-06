@@ -71,6 +71,49 @@ async function startServer() {
     return res.status(401).json({ error: 'Нэвтрэх нэр эсвэл нууц үг буруу байна.' });
   });
 
+  // Password Reset / Forgot Password flow
+  app.post('/api/auth/reset-password', (req, res) => {
+    const { username, email, newPassword } = req.body;
+    if (!username || !email || !newPassword) {
+      return res.status(400).json({ error: 'Бүх талбарыг бөглөнө үү.' });
+    }
+
+    const db = getDb();
+    // Find user (case-insensitive username search)
+    const user = db.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+    if (!user) {
+      return res.status(404).json({ error: 'Хэрэглэгчийн нэр олдсонгүй.' });
+    }
+
+    // Verify email matches (case-insensitive search)
+    if (!user.email || user.email.toLowerCase() !== email.toLowerCase()) {
+      return res.status(400).json({ error: 'Хэрэглэгчийн нэр болон бүртгэлтэй и-мэйл хаяг тохирохгүй байна.' });
+    }
+
+    // Update password
+    db.passwords[user.username] = newPassword;
+
+    // Simulate sending an email and log it
+    const emailLog = {
+      id: `email_${Date.now()}`,
+      recipientEmail: user.email,
+      recipientUsername: user.username,
+      generatedPassword: newPassword,
+      username: user.username,
+      password: newPassword,
+      subject: 'MINITRADER - Нууц үг амжилттай солигдлоо',
+      sentAt: new Date().toISOString(),
+      status: 'sent' as const
+    };
+    if (!db.emails) db.emails = [];
+    db.emails.push(emailLog);
+
+    saveDb(db);
+
+    return res.json({ success: true, message: 'Нууц үг амжилттай солигдлоо.' });
+  });
+
   // 3. Create user (Admin only)
   app.post('/api/admin/users', async (req, res) => {
     const { username, email, expiration } = req.body;
