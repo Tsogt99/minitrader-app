@@ -4,6 +4,7 @@ export interface User {
   role: 'admin' | 'user';
   createdAt: string;
   email?: string;
+  expiresAt?: string;
 }
 
 export interface Trade {
@@ -61,6 +62,9 @@ export interface EmailLog {
   recipientEmail: string;
   recipientUsername: string;
   generatedPassword: string;
+  username?: string;
+  password?: string;
+  subject?: string;
   sentAt: string;
   status: 'sent';
 }

@@ -388,6 +388,30 @@ export const getDb = (): DatabaseSchema => {
     if (!parsed.news || parsed.news.length === 0) {
       parsed.news = DEFAULT_NEWS;
     }
+
+    // Automatic cleanup of expired users
+    if (parsed.users && Array.isArray(parsed.users)) {
+      const now = new Date();
+      let dbChanged = false;
+      const activeUsers = parsed.users.filter((u: any) => {
+        if (u.expiresAt && new Date(u.expiresAt) < now) {
+          console.log(`User ${u.username} has expired and is being automatically removed.`);
+          // Remove their password mapping
+          if (parsed.passwords && parsed.passwords[u.username]) {
+            delete parsed.passwords[u.username];
+          }
+          dbChanged = true;
+          return false;
+        }
+        return true;
+      });
+
+      if (dbChanged) {
+        parsed.users = activeUsers;
+        fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf-8');
+      }
+    }
+
     return parsed;
   } catch (error) {
     console.error('Error reading database file:', error);

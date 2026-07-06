@@ -58,11 +58,12 @@ async function startServer() {
     }
 
     const db = getDb();
-    const dbPassword = db.passwords[username];
+    // Case-insensitive search for username
+    const user = db.users.find(u => u.username.toLowerCase() === username.toLowerCase());
 
-    if (dbPassword && dbPassword === password) {
-      const user = db.users.find(u => u.username === username);
-      if (user) {
+    if (user) {
+      const dbPassword = db.passwords[user.username];
+      if (dbPassword && dbPassword === password) {
         return res.json({ success: true, user });
       }
     }
@@ -72,7 +73,7 @@ async function startServer() {
 
   // 3. Create user (Admin only)
   app.post('/api/admin/users', async (req, res) => {
-    const { username, email } = req.body;
+    const { username, email, expiration } = req.body;
     if (!username || !email) {
       return res.status(400).json({ error: 'Хэрэглэгчийн нэр болон и-мэйл хаягийг оруулна уу.' });
     }
@@ -88,13 +89,30 @@ async function startServer() {
       // 1. Generate password using Gemini!
       const generatedPassword = await generateSecurePassword(username);
 
+      // Expiration calculation
+      let expiresAt: string | undefined = undefined;
+      if (expiration && expiration !== 'never') {
+        const date = new Date();
+        if (expiration === '1h') {
+          date.setHours(date.getHours() + 1);
+        } else if (expiration === '1d') {
+          date.setDate(date.getDate() + 1);
+        } else if (expiration === '7d') {
+          date.setDate(date.getDate() + 7);
+        } else if (expiration === '30d') {
+          date.setDate(date.getDate() + 30);
+        }
+        expiresAt = date.toISOString();
+      }
+
       // 2. Create the user object
       const newUser: User = {
         id: `user_${Date.now()}`,
         username,
         role: 'user',
         email,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        expiresAt
       };
 
       // 3. Save to database
@@ -107,6 +125,9 @@ async function startServer() {
         recipientEmail: email,
         recipientUsername: username,
         generatedPassword,
+        username,
+        password: generatedPassword,
+        subject: 'MINITRADER - Шинэ хэрэглэгчийн бүртгэл',
         sentAt: new Date().toISOString(),
         status: 'sent'
       };
@@ -118,12 +139,37 @@ async function startServer() {
         success: true,
         user: newUser,
         generatedPassword,
+        passwordGenerated: generatedPassword,
         emailLog
       });
     } catch (error: any) {
       console.error('Failed to create user:', error);
       return res.status(500).json({ error: 'Хэрэглэгч үүсгэхэд алдаа гарлаа: ' + error.message });
     }
+  });
+
+  // Get all users (Admin console viewer)
+  app.get('/api/admin/users', (req, res) => {
+    const db = getDb();
+    res.json(db.users || []);
+  });
+
+  // Delete user (Admin only)
+  app.delete('/api/admin/users/:id', (req, res) => {
+    const { id } = req.params;
+    const db = getDb();
+    const userIndex = db.users.findIndex(u => u.id === id);
+    if (userIndex >= 0) {
+      const username = db.users[userIndex].username;
+      // Remove password mapping
+      if (db.passwords && db.passwords[username]) {
+        delete db.passwords[username];
+      }
+      db.users.splice(userIndex, 1);
+      saveDb(db);
+      return res.json({ success: true });
+    }
+    return res.status(404).json({ error: 'Хэрэглэгч олдсонгүй.' });
   });
 
   // 4. Get all simulated emails (Admin console viewer)

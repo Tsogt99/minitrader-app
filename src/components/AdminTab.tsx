@@ -6,6 +6,7 @@ import { EmailLog } from '../types.js';
 export default function AdminTab() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [expiration, setExpiration] = useState('never');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successResult, setSuccessResult] = useState<{ username: string; email: string; passwordGenerated: string } | null>(null);
@@ -14,6 +15,25 @@ export default function AdminTab() {
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [fetchingLogs, setFetchingLogs] = useState(false);
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+
+  // Active Users List
+  const [users, setUsers] = useState<any[]>([]);
+  const [fetchingUsers, setFetchingUsers] = useState(false);
+
+  const fetchUsers = async () => {
+    setFetchingUsers(true);
+    try {
+      const response = await fetch('/api/admin/users');
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      }
+    } catch (err) {
+      console.error('Fetch users error:', err);
+    } finally {
+      setFetchingUsers(false);
+    }
+  };
 
   const fetchEmailLogs = async () => {
     setFetchingLogs(true);
@@ -30,8 +50,24 @@ export default function AdminTab() {
     }
   };
 
+  const handleDeleteUser = async (id: string, name: string) => {
+    if (!window.confirm(`Та "${name}" хэрэглэгчийг устгахдаа итгэлтэй байна уу?`)) return;
+    try {
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        fetchUsers();
+        fetchEmailLogs();
+      }
+    } catch (err) {
+      console.error('Delete user error:', err);
+    }
+  };
+
   useEffect(() => {
     fetchEmailLogs();
+    fetchUsers();
   }, []);
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -49,7 +85,7 @@ export default function AdminTab() {
       const response = await fetch('/api/admin/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email }),
+        body: JSON.stringify({ username, email, expiration }),
       });
 
       const data = await response.json();
@@ -62,7 +98,9 @@ export default function AdminTab() {
         });
         setUsername('');
         setEmail('');
+        setExpiration('never');
         fetchEmailLogs(); // Refresh the email dispatch logs!
+        fetchUsers(); // Refresh the active users list!
       } else {
         setError(data.error || 'Хэрэглэгч үүсгэхэд алдаа гарлаа.');
       }
@@ -133,8 +171,25 @@ export default function AdminTab() {
                 />
               </div>
 
+              <div>
+                <label className="block text-slate-400 text-xs font-semibold mb-1.5 uppercase tracking-wider">
+                  Ашиглах хугацаа (Expiration)
+                </label>
+                <select
+                  value={expiration}
+                  onChange={(e) => setExpiration(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none cursor-pointer"
+                >
+                  <option value="never">Хязгааргүй (Never Expires)</option>
+                  <option value="1h">1 цаг (1 Hour)</option>
+                  <option value="1d">1 өдөр (1 Day)</option>
+                  <option value="7d">7 хоног (7 Days)</option>
+                  <option value="30d">30 хоног (30 Days)</option>
+                </select>
+              </div>
+
               <div className="bg-slate-950 p-3 rounded-xl border border-slate-850/60 text-[10px] text-slate-500 leading-relaxed">
-                💡 Хэрэглэгч үүсгэх дарахад AI-аас тухайн хэрэглэгчид зориулсан <strong>аюулгүй, худалдаачинд тохиромжтой</strong> нууц үг зохиож, и-мэйл руу нь автоматаар илгээх процесс симуляци хийгдэнэ.
+                💡 Хэрэглэгч үүсгэх дарахад сонгосон хугацаатай хэрэглэгчийг үүсгэж, AI-аас тухайн хэрэглэгчид зориулсан <strong>аюулгүй, худалдаачинд тохиромжтой</strong> нууц үг зохиож, и-мэйл руу нь автоматаар илгээх процесс симуляци хийгдэнэ. Заасан хугацаа дуусахад хэрэглэгчийн эрх автоматаар цуцлагдаж хасагдана.
               </div>
 
               <button
@@ -186,6 +241,75 @@ export default function AdminTab() {
               </p>
             </motion.div>
           )}
+
+          {/* Registered Users List */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <Shield className="h-4.5 w-4.5 text-emerald-400" /> Бүртгэлтэй хэрэглэгчид
+              </h3>
+              <button
+                onClick={fetchUsers}
+                disabled={fetchingUsers}
+                className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition cursor-pointer"
+              >
+                <RefreshCw className={`h-3 w-3 ${fetchingUsers ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              {fetchingUsers && users.length === 0 ? (
+                <div className="text-center py-6 text-slate-500 text-xs">Ачаалж байна...</div>
+              ) : users.length === 0 ? (
+                <div className="text-center py-6 text-slate-500 text-xs">Бүртгэлтэй хэрэглэгч байхгүй байна.</div>
+              ) : (
+                users.map((u) => {
+                  const isExpired = u.expiresAt ? new Date(u.expiresAt) < new Date() : false;
+                  const expiresLabel = u.expiresAt ? (
+                    isExpired ? (
+                      <span className="text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold">Хугацаа дууссан</span>
+                    ) : (
+                      <span className="text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold">
+                        Дуусах: {new Date(u.expiresAt).toLocaleString('mn-MN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )
+                  ) : (
+                    <span className="text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold">Хязгааргүй</span>
+                  );
+
+                  return (
+                    <div key={u.id} className="bg-slate-950 p-3 rounded-xl border border-slate-850 flex items-center justify-between gap-2 text-xs">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-slate-200 truncate">{u.username}</span>
+                          {u.role === 'admin' && (
+                            <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded text-[8px] font-semibold uppercase">Админ</span>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-slate-500 truncate">{u.email}</div>
+                        <div className="flex items-center gap-1 text-[9px] text-slate-600 mt-0.5">
+                          <span>Бүртгэсэн: {new Date(u.createdAt).toLocaleDateString('mn-MN')}</span>
+                        </div>
+                        <div className="mt-1">{expiresLabel}</div>
+                      </div>
+
+                      {u.role !== 'admin' && (
+                        <button
+                          onClick={() => handleDeleteUser(u.id, u.username)}
+                          className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition cursor-pointer shrink-0"
+                          title="Хэрэглэгч устгах"
+                        >
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Right column: Email Log Viewer */}
