@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Sparkles, Activity, AlertTriangle, Play, HelpCircle, FileText, CheckCircle2 } from 'lucide-react';
-import { Trade } from '../types.js';
+import { Trade, User } from '../types.js';
 
-export default function LossDiagnosticsTab() {
+interface LossDiagnosticsTabProps {
+  currentUser: User;
+  key?: any;
+}
+
+export default function LossDiagnosticsTab({ currentUser }: LossDiagnosticsTabProps) {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [report, setReport] = useState<string>('');
   const [analyzing, setAnalyzing] = useState(false);
@@ -12,7 +17,7 @@ export default function LossDiagnosticsTab() {
 
   const fetchTrades = async () => {
     try {
-      const response = await fetch('/api/journal');
+      const response = await fetch(`/api/journal?userId=${currentUser.id}`);
       if (response.ok) {
         const data = await response.json();
         setTrades(data);
@@ -49,6 +54,8 @@ export default function LossDiagnosticsTab() {
     try {
       const response = await fetch('/api/analytics/ai-report', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id }),
       });
       if (response.ok) {
         const data = await response.json();

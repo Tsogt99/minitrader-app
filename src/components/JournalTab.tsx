@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, Plus, Save, Trash2, Edit2, X, Sparkles, AlertCircle, RefreshCw, Calendar, CheckCircle2 } from 'lucide-react';
-import { Trade } from '../types.js';
+import { Trade, User } from '../types.js';
 
 interface JournalTabProps {
+  currentUser: User;
   onTradesUpdated?: () => void;
 }
 
-export default function JournalTab({ onTradesUpdated }: JournalTabProps) {
+export default function JournalTab({ currentUser, onTradesUpdated }: JournalTabProps) {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -35,7 +36,7 @@ export default function JournalTab({ onTradesUpdated }: JournalTabProps) {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/journal');
+      const response = await fetch(`/api/journal?userId=${currentUser.id}`);
       if (response.ok) {
         const data = await response.json();
         setTrades(data.sort((a: Trade, b: Trade) => new Date(b.openTime).getTime() - new Date(a.openTime).getTime()));
@@ -69,6 +70,7 @@ export default function JournalTab({ onTradesUpdated }: JournalTabProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId: currentUser.id,
           symbol,
           type,
           volume: Number(volume || 0.1),

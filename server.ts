@@ -297,13 +297,19 @@ async function startServer() {
   // 6. Get Trading Journal entries
   app.get('/api/journal', (req, res) => {
     const db = getDb();
-    // Return all trades
+    const userId = req.query.userId || req.body.userId;
+    if (userId) {
+      const userTrades = (db.trades || []).filter(t => t.userId === userId);
+      return res.json(userTrades);
+    }
+    // Return all trades if no specific userId is requested
     return res.json(db.trades || []);
   });
 
   // 7. Create Manual Trade entry in journal
   app.post('/api/journal', (req, res) => {
     const {
+      userId,
       symbol,
       type,
       volume,
@@ -329,7 +335,7 @@ async function startServer() {
     const newTrade: Trade = {
       id: `trade_${ticket}`,
       ticket,
-      userId: 'user_1',
+      userId: userId || 'user_1',
       symbol: String(symbol).toUpperCase(),
       type: type as 'buy' | 'sell',
       volume: Number(volume),
@@ -608,9 +614,11 @@ async function startServer() {
   // 12. Trigger AI Loss analysis & Advice
   app.post('/api/analytics/ai-report', async (req, res) => {
     const db = getDb();
+    const userId = req.body.userId || req.query.userId;
     
     try {
-      const reportMarkdown = await analyzeTradingLosses(db.trades);
+      const userTrades = userId ? (db.trades || []).filter(t => t.userId === userId) : (db.trades || []);
+      const reportMarkdown = await analyzeTradingLosses(userTrades);
       return res.json({ report: reportMarkdown });
     } catch (err: any) {
       console.error('Failed to generate AI loss analysis report:', err);

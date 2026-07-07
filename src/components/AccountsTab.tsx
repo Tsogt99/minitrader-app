@@ -4,9 +4,13 @@ import {
   CreditCard, Plus, Edit2, Trash2, ShieldAlert, CheckCircle2, 
   Wallet, TrendingUp, Info, Percent, RefreshCw, X, AlertCircle
 } from 'lucide-react';
-import { TradingAccount } from '../types.js';
+import { TradingAccount, User } from '../types.js';
 
-export default function AccountsTab() {
+interface AccountsTabProps {
+  currentUser: User;
+}
+
+export default function AccountsTab({ currentUser }: AccountsTabProps) {
   const [accounts, setAccounts] = useState<TradingAccount[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,7 +31,7 @@ export default function AccountsTab() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/accounts');
+      const res = await fetch(`/api/accounts?userId=${currentUser.id}`);
       if (res.ok) {
         const data = await res.json();
         setAccounts(data);
@@ -91,6 +95,7 @@ export default function AccountsTab() {
     }
 
     const payload = {
+      userId: currentUser.id,
       accountNumber,
       broker,
       accountType,

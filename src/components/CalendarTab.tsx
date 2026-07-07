@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, TrendingUp, AlertTriangle, Clock } from 'lucide-react';
-import { Trade } from '../types.js';
+import { Trade, User } from '../types.js';
 
-export default function CalendarTab() {
+interface CalendarTabProps {
+  currentUser: User;
+  key?: any;
+}
+
+export default function CalendarTab({ currentUser }: CalendarTabProps) {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDayTrades, setSelectedDayTrades] = useState<Trade[] | null>(null);
@@ -11,7 +16,7 @@ export default function CalendarTab() {
 
   const fetchTrades = async () => {
     try {
-      const response = await fetch('/api/journal');
+      const response = await fetch(`/api/journal?userId=${currentUser.id}`);
       if (response.ok) {
         const data = await response.json();
         setTrades(data);
@@ -241,3 +246,4 @@ export default function CalendarTab() {
     </div>
   );
 }
+

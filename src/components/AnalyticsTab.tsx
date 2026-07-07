@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { TrendingUp, Award, BarChart3, PieChart, Activity, DollarSign, Calendar } from 'lucide-react';
-import { Trade } from '../types.js';
+import { Trade, User } from '../types.js';
 
 type PeriodType = 'Day' | 'Week' | 'Month' | 'Quarter' | 'Year';
 
-export default function AnalyticsTab() {
+interface AnalyticsTabProps {
+  currentUser: User;
+  key?: any;
+}
+
+export default function AnalyticsTab({ currentUser }: AnalyticsTabProps) {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [period, setPeriod] = useState<PeriodType>('Month');
   const [loading, setLoading] = useState(false);
@@ -13,7 +18,7 @@ export default function AnalyticsTab() {
   const fetchTrades = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/journal');
+      const response = await fetch(`/api/journal?userId=${currentUser.id}`);
       if (response.ok) {
         const data = await response.json();
         setTrades(data);
